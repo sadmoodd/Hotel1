@@ -24,6 +24,7 @@ class Ui_Dialog(object):
         self.username.setGeometry(QtCore.QRect(110, 20, 151, 26))
         self.username.setObjectName("username")
         self.password = QtWidgets.QLineEdit(Dialog)
+        # self.password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.password.setGeometry(QtCore.QRect(110, 50, 151, 26))
         self.password.setObjectName("password")
         self.label_3 = QtWidgets.QLabel(Dialog)

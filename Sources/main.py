@@ -1,13 +1,13 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QPushButton, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QTableWidgetItem
 from PyQt5 import QtWidgets
-import MainWindow, EmployerForm, AddHotel, HotelRew 
-import RegForm
+import MainWindow, EmployerForm, AddHotel, HotelRew, RegForm
 import sqlite3
 import hashlib
 
 def hash_ps(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
 
 class HotelReviewer(HotelRew.Ui_Form):
     def setupUi(self, Form, hotelId: int):
@@ -16,9 +16,27 @@ class HotelReviewer(HotelRew.Ui_Form):
         self.DBConnector = DBConnector('HotelSystem.db')
         self.addRoomBtn.clicked.connect(self.get_data_for_room)
         self.addEmpBtn.clicked.connect(self.get_data_for_emps)
+        self.delRoomBtn.clicked.connect(self.deleteRoom)
+        self.delEmpBtn.clicked.connect(self.deleteEmp)
         self.loadRooms()
         self.loadEmployers()
-        
+    
+    def deleteRoom(self):
+        try:
+            rowindex = int(self.roomNumber.text())
+            self.DBConnector.delRoom(rowindex)
+            self.loadRooms()
+        except:
+            QMessageBox.warning(QtWidgets.QWidget(), "Ошибка", "Неверный ввод")
+
+    def deleteEmp(self):
+        try:
+            rowindex = int(self.empNumber.text())
+            self.DBConnector.delEmp(rowindex)
+            self.loadEmployers()
+        except:
+            QMessageBox.warning(QtWidgets.QWidget(), "Ошибка", "Неверный ввод")
+
     def get_data_for_emps(self):
         fio = self.fio.text()
         position = self.comboBox.itemText(self.comboBox.currentIndex())
@@ -27,21 +45,28 @@ class HotelReviewer(HotelRew.Ui_Form):
         if self.comboBox.currentIndex() != 0:
             self.DBConnector.addEmployer(fio, position, salary)
             print("OK")
+            self.fio.setText("")
+            self.salary.setText("")
+            self.loadEmployers()
         else:
             QMessageBox.warning(QtWidgets.QWidget(), "Ошибка", "Выберите должность")
         
     def get_data_for_room(self):
-        num = self.roomNumInput.text()
-        price = self.price.text()
-        isBook = "нет"
-        visitor = "-"
-        self.DBConnector.addRoom(num, self.hotelId, price, isBook, visitor)
-        
-
-    # def addRoom_(self, hotelId, num, price, isBook, visitor):
-
+        if self.roomNumInput.text() != "" and self.price.text() != "":
+            num = self.roomNumInput.text()
+            price = self.price.text()
+            isBook = "нет"
+            visitor = "-"
+            self.DBConnector.addRoom(num, self.hotelId, price, isBook, visitor)
+            self.roomNumInput.setText("")
+            self.price.setText("")
+            self.loadRooms()
+        else:
+            QMessageBox.warning(QtWidgets.QWidget(), "Ошибка", "Не все поля заполнены")
+            
     def loadEmployers(self):
-        empl = self.DBConnector.get_employers()
+        self.employersTable.setRowCount(0)
+        empl = self.DBConnector.get_employers(self.hotelId)
 
         if not empl:
             return
@@ -53,7 +78,8 @@ class HotelReviewer(HotelRew.Ui_Form):
                 self.employersTable.setItem(row_position, col, QTableWidgetItem(str(data)))
 
     def loadRooms(self):
-        rooms = self.DBConnector.get_all_rooms()
+        self.roomTable.setRowCount(0)
+        rooms = self.DBConnector.get_all_rooms(self.hotelId)
 
         if not rooms:
             return 
@@ -71,8 +97,7 @@ class AddHotelForm(AddHotel.Ui_HotelAddForm):
         self.buttonBox.accepted.connect(lambda: self.get_info(HotelAddForm))
         self.buttonBox.rejected.connect(HotelAddForm.reject)
         self.DBConnector = DBConnector('HotelSystem.db')
-        
-    
+          
     def get_info(self, AddHotelForm):
         hotelName = self.hotelName.text()
         try:
@@ -114,7 +139,6 @@ class DBConnector():
             print(f'Произошла ошибка {e}')
             return False
         
-
     def addHotel(self, hotelName: str):
         try:
             self.cursor.execute('INSERT INTO hotels (hotelName) VALUES (?)', 
@@ -173,13 +197,28 @@ class DBConnector():
         id_ = self.cursor.fetchone()
         return id_    
 
-    def get_all_rooms(self):
-        self.cursor.execute('SELECT * FROM rooms')
+    def get_all_rooms(self, hotelId):
+        self.cursor.execute('SELECT * FROM rooms WHERE hotelId=?', (hotelId, ))
         return self.cursor.fetchall() # list = [tuple1: str, tuple2: str, ... , tupleN: str]    
     
-    def get_employers(self):
-        self.cursor.execute('SELECT * FROM employers')
+    def get_employers(self, hotelId):
+        self.cursor.execute('SELECT * FROM employers WHERE hotelId=?', (hotelId,))
         return self.cursor.fetchall()
+
+    def delRoom(self, rowindex: int):
+        try:
+            self.cursor.execute('DELETE FROM rooms WHERE (rowid IN (?))', (rowindex, ))
+            self.conn.commit()
+        except Exception as e:
+            print(e)
+
+    def delEmp(self, rowindex: int):
+        try:
+            self.cursor.execute('DELETE FROM employers WHERE (rowid IN (?))', (rowindex, ))
+            self.conn.commit()
+        except Exception as e:
+            print(e)
+
 
 class Register(RegForm.Ui_Dialog):
     def setupUi(self, Dialog):
@@ -215,8 +254,6 @@ class EmployerForm_(EmployerForm.Ui_AdminForm):
         self.updateBtn.clicked.connect(self.loadHotels)
         self.seeHotelBtn.clicked.connect(self.openHotelForm)
         self.delHotelBtn.clicked.connect(self.delHotel_)
-        
-        # self.loadHotels()
 
     def delHotel_(self):
         curHotel = self.comboBox.itemText(self.comboBox.currentIndex())
@@ -227,8 +264,6 @@ class EmployerForm_(EmployerForm.Ui_AdminForm):
         else:
             print("Отелей не найдено")
 
-
-
     def openHotelForm(self):
         curHotel = self.comboBox.itemText(self.comboBox.currentIndex())
         id_ = self.DBConnector.get_hotel_id(curHotel)
@@ -236,7 +271,6 @@ class EmployerForm_(EmployerForm.Ui_AdminForm):
         ui = HotelReviewer()
         ui.setupUi(w, id_[0])
         w.exec_()
-
 
     def openAddHotelForm(self):
         w = QtWidgets.QDialog()
@@ -251,7 +285,6 @@ class EmployerForm_(EmployerForm.Ui_AdminForm):
             self.comboBox.clear()
             self.comboBox.addItems(hotels)  # Добавляем названия отелей в comboBox
         
-
     def openHotelAdder(self):
         pass
 
@@ -279,7 +312,6 @@ class MainWin(MainWindow.Ui_MainWindow):
         password = hash_ps(self.passwdField.text())
         self.Login(username, password)
         
-
     def exit(self):
         QtWidgets.QApplication.quit()
     
@@ -292,11 +324,10 @@ class MainWin(MainWindow.Ui_MainWindow):
             self.passwdField.setEnabled(False)
 
     def openRegisterForm(self):
-        w = QtWidgets.QDialog()  # Создаем новое диалоговое окно
-        ui = Register()  # Создаем экземпляр вашего окна регистрации
-        ui.setupUi(w)  # Настраиваем интерфейс регистрации
-        w.exec_()  # Показываем диалоговое окно как модальное
-
+        w = QtWidgets.QDialog()
+        ui = Register()
+        ui.setupUi(w)
+        w.exec_() 
 
     def unlockLogin(self):
         if self.loginField.text() != "" and self.passwdField.text() != "":
@@ -306,20 +337,19 @@ class MainWin(MainWindow.Ui_MainWindow):
 
     def Login(self, username, password):
         user = self.DbConnector.get_user(username)
-        if user and user[2] == password:
-            #print("OK")   
+        if user and user[2] == password: 
             if user[3] == 0 or user[3] == 4:
                 w = QtWidgets.QDialog()
                 ui = EmployerForm_()
                 ui.setupUi(w, user[1])
                 w.exec_()
         else:
-            pass
+            QMessageBox.warning(QtWidgets.QWidget(), "Ошибка входа", "Неверное имя пользователя или пароль")
+            self.loginField.setText("")
+            self.passwdField.setText("")
 
         
 if __name__ == "__main__":
-    # print(hash_ps("admin"))
-    print('11111')
     app = QApplication(sys.argv)  # Создание экземпляра приложения
 
     # Создание и инициализация главного окна
