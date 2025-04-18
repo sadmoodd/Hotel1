@@ -64,7 +64,7 @@
      <bool>true</bool>
     </property>
     <property name="columnCount">
-     <number>5</number>
+     <number>3</number>
     </property>
     <column>
      <property name="text">
@@ -79,16 +79,6 @@
     <column>
      <property name="text">
       <string>Стоимость </string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Бронь (да/нет)</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Посетитель</string>
      </property>
     </column>
    </widget>

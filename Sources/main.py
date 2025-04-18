@@ -1,13 +1,73 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QTableWidgetItem
 from PyQt5 import QtWidgets
-import MainWindow, EmployerForm, AddHotel, HotelRew, RegForm
+import MainWindow, EmployerForm, AddHotel, HotelRew, RegForm, BookForm
 import sqlite3
+import datetime
 import hashlib
 
 def hash_ps(password):
     return hashlib.sha256(password.encode()).hexdigest()
+    
 
+class Check:
+    def __init__(self, fio, timedelta, roomNum, price_per_day):
+        self.fio = fio
+        self.curDate = datetime.datetime.now().replace(microsecond=0)
+        self.timedelta = timedelta
+        self.endDate = self.curDate + datetime.timedelta(days=self.timedelta)
+        self.roomNum = roomNum
+        self.totalPrice = self.timedelta * price_per_day
+
+    def __str__(self):
+        return f"Спасибо за бронирование, {self.fio}!\nВаша комната номер: {self.roomNum} забронирована с {self.curDate} до {self.endDate}.\nИтого к оплате: {self.totalPrice} руб."
+
+
+class _BookForm(BookForm.Ui_Form):
+    def setupUi(self, Form):
+        super().setupUi(Form)
+        self.DBConnector = DBConnector('HotelSystem.db')
+        self.uploadBtn.clicked.connect(self.updateList)
+        # self.comboBox.currentIndexChanged.connect(self.updateRooms)
+        self.hotelsList = self.DBConnector.get_all_hotels()
+        self.updateBtn.clicked.connect(self.roomUpdater)
+        self.bookBtn.clicked.connect(self.to_book)
+
+    def to_book(self):
+        self.textBrowser.clear()
+        fio = self.fio.text()
+        roomNum = int(self.lineEdit.text())
+        timedelta = self.spinBox.value()
+        price = self.DBConnector.get_room_price(roomNum)
+        check = Check(fio, timedelta, roomNum, price[0])
+        self.textBrowser.append(str(check))
+
+    def roomUpdater(self):
+        hotelId = self.comboBox.itemData(self.comboBox.currentIndex())
+        self.tableWidget.setRowCount(0)
+        rooms = self.DBConnector.get_all_rooms(hotelId)
+
+        if not rooms:
+            return
+        
+        for room in rooms:
+            row_position = self.tableWidget.rowCount()
+            self.tableWidget.insertRow(row_position)  
+            for col, data in enumerate(room):
+                self.tableWidget.setItem(row_position, col, QTableWidgetItem(str(data)))
+
+    def updateList(self):
+        self.comboBox.clear()
+        for i in self.hotelsList:
+            self.comboBox.addItem(i[0], i[1])
+            #print(self.comboBox.itemData(self.comboBox.currentIndex()))
+        
+        
+
+    def updateRooms(self):
+        hotelId = self.comboBox.itemData(self.comboBox.currentIndex())
+        self.DBConnector.get_all_rooms(hotelId)
+        
 
 class HotelReviewer(HotelRew.Ui_Form):
     def setupUi(self, Form, hotelId: int):
@@ -150,13 +210,14 @@ class DBConnector():
 
     def get_all_hotels(self):
         try:
-            self.cursor.execute('SELECT hotelName FROM hotels')
+            self.cursor.execute('SELECT * FROM hotels')
             hotels = self.cursor.fetchall()
-            hotels_strings = []
+            hotelsList = []
             for hotel in hotels:
-                hotel_name = hotel[0]  
-                hotels_strings.append(hotel_name) 
-            return hotels_strings
+                hotel_name = hotel[1]
+                hotel_id = hotel[0]  
+                hotelsList.append([hotel_name, hotel_id]) 
+            return hotelsList
         except Exception as e:
             print(f"Ошибка при извлечении отелей: {e}")
             return []
@@ -204,6 +265,10 @@ class DBConnector():
     def get_employers(self, hotelId):
         self.cursor.execute('SELECT * FROM employers WHERE hotelId=?', (hotelId,))
         return self.cursor.fetchall()
+    
+    def get_room_price(self, roomNum):
+        self.cursor.execute('SELECT price FROM rooms WHERE roomNum=?', (roomNum, ))
+        return self.cursor.fetchone()
 
     def delRoom(self, rowindex: int):
         try:
@@ -283,7 +348,8 @@ class EmployerForm_(EmployerForm.Ui_AdminForm):
         if hotels:
             # for i in hotels:
             self.comboBox.clear()
-            self.comboBox.addItems(hotels)  # Добавляем названия отелей в comboBox
+            for i in hotels:
+                self.comboBox.addItem(i[0], i[1])  # Добавляем названия отелей в comboBox
         
     def openHotelAdder(self):
         pass
@@ -343,6 +409,11 @@ class MainWin(MainWindow.Ui_MainWindow):
                 ui = EmployerForm_()
                 ui.setupUi(w, user[1])
                 w.exec_()
+            if user[3] == 1:
+                w = QtWidgets.QDialog()
+                ui = _BookForm()
+                ui.setupUi(w)
+                w.exec_()
         else:
             QMessageBox.warning(QtWidgets.QWidget(), "Ошибка входа", "Неверное имя пользователя или пароль")
             self.loginField.setText("")
@@ -350,6 +421,8 @@ class MainWin(MainWindow.Ui_MainWindow):
 
         
 if __name__ == "__main__":
+    print(datetime.datetime.now())
+    print(datetime.datetime.now() + datetime.timedelta(days=20))
     app = QApplication(sys.argv)  # Создание экземпляра приложения
 
     # Создание и инициализация главного окна

@@ -6,33 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>715</width>
-    <height>454</height>
+    <width>745</width>
+    <height>459</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Бронирование комнаты</string>
   </property>
-  <widget class="QTableWidget" name="tableWidget">
-   <property name="geometry">
-    <rect>
-     <x>395</x>
-     <y>10</y>
-     <width>311</width>
-     <height>431</height>
-    </rect>
-   </property>
-   <column>
-    <property name="text">
-     <string>№ Комнаты</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>Стоимость</string>
-    </property>
-   </column>
-  </widget>
   <widget class="QComboBox" name="comboBox">
    <property name="geometry">
     <rect>
@@ -48,7 +28,7 @@
     <rect>
      <x>10</x>
      <y>20</y>
-     <width>111</width>
+     <width>121</width>
      <height>16</height>
     </rect>
    </property>
@@ -92,7 +72,7 @@
   <widget class="QSpinBox" name="spinBox">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>200</x>
      <y>220</y>
      <width>121</width>
      <height>22</height>
@@ -104,7 +84,7 @@
     <rect>
      <x>10</x>
      <y>200</y>
-     <width>131</width>
+     <width>171</width>
      <height>16</height>
     </rect>
    </property>
@@ -115,9 +95,9 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>200</x>
      <y>200</y>
-     <width>171</width>
+     <width>231</width>
      <height>16</height>
     </rect>
    </property>
@@ -130,7 +110,7 @@
     <rect>
      <x>270</x>
      <y>400</y>
-     <width>121</width>
+     <width>151</width>
      <height>41</height>
     </rect>
    </property>
@@ -149,6 +129,76 @@
    </property>
    <property name="text">
     <string>Чек</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="updateBtn">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>80</y>
+     <width>161</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Обновить данные</string>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tableWidget">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>10</y>
+     <width>301</width>
+     <height>431</height>
+    </rect>
+   </property>
+   <property name="sizeAdjustPolicy">
+    <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+   </property>
+   <property name="showGrid">
+    <bool>true</bool>
+   </property>
+   <property name="columnCount">
+    <number>3</number>
+   </property>
+   <column>
+    <property name="text">
+     <string>№ Комнаты</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>ID Отеля</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Стоимость </string>
+    </property>
+   </column>
+  </widget>
+  <widget class="QLineEdit" name="fio">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>166</y>
+     <width>181</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>140</y>
+     <width>111</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Введите ФИО</string>
    </property>
   </widget>
  </widget>
