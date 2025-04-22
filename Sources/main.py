@@ -19,6 +19,12 @@ class Check:
         self.roomNum = roomNum
         self.totalPrice = self.timedelta * price_per_day
 
+    def get_start_time(self):
+        return f"{self.curDate}"
+
+    def get_end_time(self):
+        return f"{self.endDate}"
+
     def __str__(self):
         return f"Спасибо за бронирование, {self.fio}!\nВаша комната номер: {self.roomNum} забронирована с {self.curDate} до {self.endDate}.\nИтого к оплате: {self.totalPrice} руб."
 
@@ -34,13 +40,22 @@ class _BookForm(BookForm.Ui_Form):
         self.bookBtn.clicked.connect(self.to_book)
 
     def to_book(self):
-        self.textBrowser.clear()
-        fio = self.fio.text()
-        roomNum = int(self.lineEdit.text())
-        timedelta = self.spinBox.value()
-        price = self.DBConnector.get_room_price(roomNum)
-        check = Check(fio, timedelta, roomNum, price[0])
-        self.textBrowser.append(str(check))
+        if self.spinBox.value() != 0:
+            self.textBrowser.clear()
+
+            fio = self.fio.text()
+            roomNum = int(self.lineEdit.text())
+            timedelta = self.spinBox.value()
+            hotelId = self.comboBox.itemData(self.comboBox.currentIndex())
+            price = self.DBConnector.get_room_price(hotelId,roomNum)
+
+            check = Check(fio, timedelta, roomNum, price[0])
+            self.DBConnector.addBookingCheck(fio, check.get_start_time(), check.get_end_time(), hotelId, roomNum)
+            self.textBrowser.append(str(check))
+            self.bookBtn.setEnabled(False)
+            return
+        else:
+            QMessageBox.warning(QtWidgets.QWidget(), "Ошибка", "Неверный ввод")
 
     def roomUpdater(self):
         hotelId = self.comboBox.itemData(self.comboBox.currentIndex())
@@ -184,6 +199,10 @@ class DBConnector():
         self.conn.close()
         self.cursor.close()
 
+    def addBookingCheck(self, visitor, startTime, endTime, hotelId, roomNum):
+        self.cursor.execute("INSERT INTO journal (visitor, startTime, endTime, hotelId, roomNum) VALUES (?, ?, ?, ?, ?)", 
+                            (visitor, startTime, endTime, hotelId, roomNum))
+        self.conn.commit()
 
     def addUser(self, username: str, password: str, status: int):
         hashed_password = hash_ps(password)
@@ -266,8 +285,8 @@ class DBConnector():
         self.cursor.execute('SELECT * FROM employers WHERE hotelId=?', (hotelId,))
         return self.cursor.fetchall()
     
-    def get_room_price(self, roomNum):
-        self.cursor.execute('SELECT price FROM rooms WHERE roomNum=?', (roomNum, ))
+    def get_room_price(self, hotelId, roomNum):
+        self.cursor.execute('SELECT price FROM rooms WHERE hotelId=? AND roomNum=?', (hotelId, roomNum))
         return self.cursor.fetchone()
 
     def delRoom(self, rowindex: int):
