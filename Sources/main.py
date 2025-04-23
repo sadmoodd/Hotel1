@@ -1,14 +1,64 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QTableWidgetItem
 from PyQt5 import QtWidgets
-import MainWindow, EmployerForm, AddHotel, HotelRew, RegForm, BookForm
+import MainWindow, EmployerForm, AddHotel, HotelRew, RegForm, BookForm, MovingAvg
 import sqlite3
 import datetime
 import hashlib
+import matplotlib.pyplot as plt
 
 def hash_ps(password):
     return hashlib.sha256(password.encode()).hexdigest()
     
+class MovingAverage(MovingAvg.Ui_Form):
+    def setupUi(self, Form):
+        super().setupUi(Form)
+        self.pushButton.clicked.connect(self.solve)
+        
+    def solve(self):
+        t1 = int(self.lineEdit.text())
+        t2 = int(self.lineEdit_2.text())
+        t3 = int(self.lineEdit_3.text())
+        t4 = int(self.lineEdit_4.text())
+        t5 = int(self.lineEdit_5.text())
+        t6 = int(self.lineEdit_6.text())
+        t7 = int(self.lineEdit_7.text())
+        t8 = int(self.lineEdit_8.text())
+        t9 = int(self.lineEdit_9.text())
+        t10 = int(self.lineEdit_10.text())
+        n = 3
+
+        # m2 = (t1 + t2 + t3) // n
+        # m3 = (t2 + t3 + t4) // n
+        # m4 = (t3 + t4 + t5) // n
+        # m5 = (t4 + t5 + t6) // n
+        # m6 = (t5 + t6 + t7) // n
+        # m7 = (t6 + t7 + t8) // n
+        # m8 = (t7 + t8 + t9) // n
+        m9 = (t8 + t9 + t10) // n
+
+        t11 = int(m9 + (1/n * (t10 - t9)))
+        m10 = (t9 + t10 + t11) / n
+        t12 = int(m10 + (1/n * (t11 - t10)))
+        # m11 = (t10 + t11 + t12) / n
+        T = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12]
+
+      
+        x = list(range(12))  
+        plt.plot(x, T, marker='o', label='Фактические значения', color='blue') 
+
+       
+        plt.plot([10, 11], [t11, t12], marker='o', color='red', label='Расчетные значения')  
+
+     
+        plt.xlabel('Временные метки')
+        plt.ylabel('Значения скользящей средней')
+        plt.title('Скользящая средняя')
+        plt.xticks(x)  
+        plt.legend()
+        plt.grid()
+        plt.show()
+        
 
 class Check:
     def __init__(self, fio, timedelta, roomNum, price_per_day):
@@ -338,6 +388,13 @@ class EmployerForm_(EmployerForm.Ui_AdminForm):
         self.updateBtn.clicked.connect(self.loadHotels)
         self.seeHotelBtn.clicked.connect(self.openHotelForm)
         self.delHotelBtn.clicked.connect(self.delHotel_)
+        self.movAvgBtn.clicked.connect(self.movAvgOpen)
+
+    def movAvgOpen(self):
+        w = QtWidgets.QDialog()
+        ui = MovingAverage()
+        ui.setupUi(w)
+        w.exec_()
 
     def delHotel_(self):
         curHotel = self.comboBox.itemText(self.comboBox.currentIndex())
