@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'employerForm.ui'
+# Form implementation generated from reading ui file './UIforms/employerForm.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -40,7 +40,10 @@ class Ui_AdminForm(object):
         self.seeHotelBtn.setObjectName("seeHotelBtn")
         self.updateBtn = QtWidgets.QPushButton(AdminForm)
         self.updateBtn.setGeometry(QtCore.QRect(20, 200, 201, 31))
-        self.updateBtn.setObjectName("seeHotelBtn_2")
+        self.updateBtn.setObjectName("updateBtn")
+        self.movAvgBtn = QtWidgets.QPushButton(AdminForm)
+        self.movAvgBtn.setGeometry(QtCore.QRect(370, 200, 221, 31))
+        self.movAvgBtn.setObjectName("movAvgBtn")
 
         self.retranslateUi(AdminForm)
         QtCore.QMetaObject.connectSlotsByName(AdminForm)
@@ -55,3 +58,4 @@ class Ui_AdminForm(object):
         self.delHotelBtn.setText(_translate("AdminForm", "Удалить отель"))
         self.seeHotelBtn.setText(_translate("AdminForm", "Просмотр текущего отеля"))
         self.updateBtn.setText(_translate("AdminForm", "Обновить список"))
+        self.movAvgBtn.setText(_translate("AdminForm", "Расчет прогнозных значений"))
