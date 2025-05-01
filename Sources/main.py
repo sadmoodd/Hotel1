@@ -1,14 +1,58 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QTableWidgetItem
 from PyQt5 import QtWidgets
-import MainWindow, EmployerForm, AddHotel, HotelRew, RegForm, BookForm
+import MainWindow, EmployerForm, AddHotel, HotelRew, RegForm, BookForm, Request
 import sqlite3
 import datetime
 import hashlib
 
 def hash_ps(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
+
+class RequestForm(Request.Ui_RequestsForm):
+    def setupUi(self, RequestsForm):
+        super().setupUi(RequestsForm)
+        self.DBConnector = DBConnector('HotelSystem.db')
+        self.update_table()
+        self.pushButton.clicked.connect(self.close_the_serve)
+
+    def update_table(self):
+        self.tableWidget.setRowCount(0)
+        rooms = self.DBConnector.get_serves()
+
+        if not rooms:
+            return
+        
+        for room in rooms:
+            row_position = self.tableWidget.rowCount()
+            self.tableWidget.insertRow(row_position)  
+            for col, data in enumerate(room):
+                self.tableWidget.setItem(row_position, col, QTableWidgetItem(str(data)))
+
+    def close_the_serve(self):
+        id = int(self.lineEdit.text())
+        self.DBConnector.delServe(id)
+        QMessageBox.about(QtWidgets.QWidget(), "Успех", "Вы успешно ответили на заявку")
+        self.update_table()
+        
+
+class Service:
+    def __init__(self, title):
+        self.title = title
+        self.date = datetime.datetime.now().replace(microsecond=0)
+
+    def get_title(self):
+        return self.title
     
+    def get_date(self):
+        return self.date
+    
+    def __str__(self):
+        return f'\nНазвание услуги {self.title}. Дата обращения {self.date}\nПостараемся выполнить заявку в течение 24 часов!'
+
+
+
 
 class Check:
     def __init__(self, fio, timedelta, roomNum, price_per_day):
@@ -38,6 +82,21 @@ class _BookForm(BookForm.Ui_Form):
         self.hotelsList = self.DBConnector.get_all_hotels()
         self.updateBtn.clicked.connect(self.roomUpdater)
         self.bookBtn.clicked.connect(self.to_book)
+        self.requestBtn.clicked.connect(self.madeServ)
+
+    def madeServ(self):
+        if self.comboBox_2.currentIndex() != 0:
+            title = self.comboBox_2.currentText()
+            serv = Service(title)
+            roomNum = int(self.lineEdit.text())
+            hotelId = self.comboBox.itemData(self.comboBox.currentIndex())
+            self.DBConnector.addService(roomNum, hotelId, serv.get_title(), serv.get_date())
+
+            numberOfServ = self.DBConnector.get_service_id(roomNum, hotelId, serv.get_title(), serv.get_date())[0]
+
+            check = str(serv) + f"\nНомер вашего обращения {numberOfServ}"
+            self.textBrowser.append(check)
+            self.requestBtn.setEnabled(False)            
 
     def to_book(self):
         if self.spinBox.value() != 0:
@@ -99,15 +158,15 @@ class HotelReviewer(HotelRew.Ui_Form):
     def deleteRoom(self):
         try:
             rowindex = int(self.roomNumber.text())
-            self.DBConnector.delRoom(rowindex)
+            self.DBConnector.delRoom(rowindex, self.hotelId)
             self.loadRooms()
         except:
             QMessageBox.warning(QtWidgets.QWidget(), "Ошибка", "Неверный ввод")
 
     def deleteEmp(self):
         try:
-            rowindex = int(self.empNumber.text())
-            self.DBConnector.delEmp(rowindex)
+            id = int(self.empNumber.text())
+            self.DBConnector.delEmp(id)
             self.loadEmployers()
         except:
             QMessageBox.warning(QtWidgets.QWidget(), "Ошибка", "Неверный ввод")
@@ -118,7 +177,7 @@ class HotelReviewer(HotelRew.Ui_Form):
         salary = self.salary.text()
 
         if self.comboBox.currentIndex() != 0:
-            self.DBConnector.addEmployer(fio, position, salary)
+            self.DBConnector.addEmployer(fio, position, salary, self.hotelId)
             print("OK")
             self.fio.setText("")
             self.salary.setText("")
@@ -130,9 +189,7 @@ class HotelReviewer(HotelRew.Ui_Form):
         if self.roomNumInput.text() != "" and self.price.text() != "":
             num = self.roomNumInput.text()
             price = self.price.text()
-            isBook = "нет"
-            visitor = "-"
-            self.DBConnector.addRoom(num, self.hotelId, price, isBook, visitor)
+            self.DBConnector.addRoom(num, self.hotelId, price)
             self.roomNumInput.setText("")
             self.price.setText("")
             self.loadRooms()
@@ -253,20 +310,20 @@ class DBConnector():
             print(f'ERROR >> {e}')
             return False
         
-    def addRoom(self, roomnum: int, hotelId: int, price: int, isBook: str, visitor: str):
+    def addRoom(self, roomnum: int, hotelId: int, price: int,):
         try:
-            self.cursor.execute('INSERT INTO rooms (roomNum, hotelId, price, isBooked, visitor) VALUES(?,?,?,?,?)',
-                                (roomnum, hotelId, price, isBook, visitor))
+            self.cursor.execute('INSERT INTO rooms (roomNum, hotelId, price) VALUES(?,?,?)',
+                                (roomnum, hotelId, price,))
             self.conn.commit()
             return True
         except Exception as e:
             print(e)
             return False
         
-    def addEmployer(self, fio: str, position: str, salary: int):
+    def addEmployer(self, fio: str, position: str, salary: int, hotelId: int):
         try:
-            self.cursor.execute('INSERT INTO employers (fio, position, salary) VALUES (?,?,?)',
-                                (fio, position, salary))
+            self.cursor.execute('INSERT INTO employers (fio, position, salary, hotelId) VALUES (?,?,?,?)',
+                                (fio, position, salary, hotelId))
             self.conn.commit()
         except Exception as e:
             print(e)
@@ -289,20 +346,39 @@ class DBConnector():
         self.cursor.execute('SELECT price FROM rooms WHERE hotelId=? AND roomNum=?', (hotelId, roomNum))
         return self.cursor.fetchone()
 
-    def delRoom(self, rowindex: int):
+    def delRoom(self, roomNum, hotelId):
         try:
-            self.cursor.execute('DELETE FROM rooms WHERE (rowid IN (?))', (rowindex, ))
+            self.cursor.execute('DELETE FROM rooms WHERE roomNum=? AND hotelId=?', (roomNum, hotelId))
             self.conn.commit()
         except Exception as e:
             print(e)
 
-    def delEmp(self, rowindex: int):
+    def delEmp(self, id: int):
         try:
-            self.cursor.execute('DELETE FROM employers WHERE (rowid IN (?))', (rowindex, ))
+            self.cursor.execute('DELETE FROM employers WHERE id=?', (id, ))
             self.conn.commit()
         except Exception as e:
             print(e)
 
+    def addService(self, roomNum, hotelId, service, date):
+        self.cursor.execute('INSERT INTO requests (roomNum, hotelId, service, date) VALUES (?,?,?,?)', (roomNum, hotelId, service, date, ))
+        self.conn.commit()
+
+    def get_service_id(self, roomNum, hotelId, service, date):
+        self.cursor.execute('SELECT id FROM requests WHERE roomNum=? AND hotelId=? AND service=? AND date=?',
+                            (roomNum, hotelId, service, date))
+        return self.cursor.fetchone()
+    
+    def get_serves(self):
+        self.cursor.execute('SELECT * FROM requests')
+        return self.cursor.fetchall()
+
+    def delServe(self, id):
+        try:
+            self.cursor.execute('DELETE FROM requests WHERE id=?', (id, ))
+            self.conn.commit()
+        except Exception as e:
+            print(e)
 
 class Register(RegForm.Ui_Dialog):
     def setupUi(self, Dialog):
@@ -428,9 +504,14 @@ class MainWin(MainWindow.Ui_MainWindow):
                 ui = EmployerForm_()
                 ui.setupUi(w, user[1])
                 w.exec_()
-            if user[3] == 1:
+            elif user[3] == 1:
                 w = QtWidgets.QDialog()
                 ui = _BookForm()
+                ui.setupUi(w)
+                w.exec_()
+            elif user[3] == 2 or user[3] == 3:
+                w = QtWidgets.QDialog()
+                ui = RequestForm()
                 ui.setupUi(w)
                 w.exec_()
         else:

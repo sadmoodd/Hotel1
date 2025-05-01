@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './UIforms/BookForm.ui'
+# Form implementation generated from reading ui file '.\UIforms\BookForm.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(745, 459)
+        Form.resize(745, 600)
         self.comboBox = QtWidgets.QComboBox(Form)
         self.comboBox.setGeometry(QtCore.QRect(10, 40, 161, 21))
         self.comboBox.setObjectName("comboBox")
@@ -49,8 +49,8 @@ class Ui_Form(object):
         self.updateBtn.setGeometry(QtCore.QRect(220, 80, 161, 31))
         self.updateBtn.setObjectName("updateBtn")
         self.tableWidget = QtWidgets.QTableWidget(Form)
-        self.tableWidget.setGeometry(QtCore.QRect(430, 10, 301, 431))
-        # self.tableWidget.setSizeAdjustPolicy(QtCore.Qt.QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents)
+        self.tableWidget.setGeometry(QtCore.QRect(430, 10, 301, 491))
+        self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustIgnored)
         self.tableWidget.setShowGrid(True)
         self.tableWidget.setColumnCount(3)
         self.tableWidget.setObjectName("tableWidget")
@@ -67,6 +67,15 @@ class Ui_Form(object):
         self.label_5 = QtWidgets.QLabel(Form)
         self.label_5.setGeometry(QtCore.QRect(10, 140, 111, 18))
         self.label_5.setObjectName("label_5")
+        self.requestBtn = QtWidgets.QPushButton(Form)
+        self.requestBtn.setGeometry(QtCore.QRect(270, 460, 151, 41))
+        self.requestBtn.setObjectName("requestBtn")
+        self.comboBox_2 = QtWidgets.QComboBox(Form)
+        self.comboBox_2.setGeometry(QtCore.QRect(10, 470, 251, 21))
+        self.comboBox_2.setObjectName("comboBox_2")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -88,3 +97,7 @@ class Ui_Form(object):
         item = self.tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("Form", "Стоимость "))
         self.label_5.setText(_translate("Form", "Введите ФИО"))
+        self.requestBtn.setText(_translate("Form", "Создать заявку"))
+        self.comboBox_2.setItemText(0, _translate("Form", "Не выбрано"))
+        self.comboBox_2.setItemText(1, _translate("Form", "Уборка комнаты"))
+        self.comboBox_2.setItemText(2, _translate("Form", "Ремонт электрооборудования"))

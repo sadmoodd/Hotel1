@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1201</width>
-    <height>636</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
    <widget class="QLineEdit" name="roomNumber">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>230</x>
       <y>40</y>
       <width>113</width>
       <height>26</height>
@@ -58,7 +58,7 @@
      </rect>
     </property>
     <property name="sizeAdjustPolicy">
-     <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+     <enum>QAbstractScrollArea::AdjustIgnored</enum>
     </property>
     <property name="showGrid">
      <bool>true</bool>
@@ -93,19 +93,6 @@
     </property>
     <property name="text">
      <string>-</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="roomReviewBtn">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>40</y>
-      <width>151</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Просмотр комнаты</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="roomNumInput">
@@ -154,6 +141,19 @@
      <string>Цена</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>40</y>
+      <width>201</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Введите номер комнаты для удаления</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
@@ -170,7 +170,7 @@
    <widget class="QLineEdit" name="empNumber">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>260</x>
       <y>40</y>
       <width>113</width>
       <height>26</height>
@@ -200,14 +200,19 @@
      </rect>
     </property>
     <property name="sizeAdjustPolicy">
-     <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+     <enum>QAbstractScrollArea::AdjustIgnored</enum>
     </property>
     <property name="showGrid">
      <bool>true</bool>
     </property>
     <property name="columnCount">
-     <number>3</number>
+     <number>4</number>
     </property>
+    <column>
+     <property name="text">
+      <string>Номер</string>
+     </property>
+    </column>
     <column>
      <property name="text">
       <string>ФИО</string>
@@ -235,19 +240,6 @@
     </property>
     <property name="text">
      <string>-</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="empReviewBtn">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>40</y>
-      <width>181</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Просмотр сотрудника</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="fio">
@@ -338,6 +330,19 @@
       <string>Администратор</string>
      </property>
     </item>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>40</y>
+      <width>221</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Введите номер сотрудника для удаления</string>
+    </property>
    </widget>
   </widget>
  </widget>

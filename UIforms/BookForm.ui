@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>745</width>
-    <height>459</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -150,11 +150,11 @@
      <x>430</x>
      <y>10</y>
      <width>301</width>
-     <height>431</height>
+     <height>491</height>
     </rect>
    </property>
    <property name="sizeAdjustPolicy">
-    <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+    <enum>QAbstractScrollArea::AdjustIgnored</enum>
    </property>
    <property name="showGrid">
     <bool>true</bool>
@@ -200,6 +200,44 @@
    <property name="text">
     <string>Введите ФИО</string>
    </property>
+  </widget>
+  <widget class="QPushButton" name="requestBtn">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>460</y>
+     <width>151</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Создать заявку</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="comboBox_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>470</y>
+     <width>251</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>Не выбрано</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Уборка комнаты</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Ремонт электрооборудования</string>
+    </property>
+   </item>
   </widget>
  </widget>
  <resources/>
