@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\UIforms\hotelReview.ui'
+# Form implementation generated from reading ui file './UIforms/hotelReview.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -26,7 +26,7 @@ class Ui_Form(object):
         self.addRoomBtn.setObjectName("addRoomBtn")
         self.roomTable = QtWidgets.QTableWidget(self.groupBox)
         self.roomTable.setGeometry(QtCore.QRect(30, 70, 511, 391))
-        self.roomTable.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustIgnored)
+        # self.roomTable.setSizeAdjustPolicy(QtCore.Qt.QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored)
         self.roomTable.setShowGrid(True)
         self.roomTable.setColumnCount(3)
         self.roomTable.setObjectName("roomTable")
@@ -66,9 +66,9 @@ class Ui_Form(object):
         self.addEmpBtn.setObjectName("addEmpBtn")
         self.employersTable = QtWidgets.QTableWidget(self.groupBox_2)
         self.employersTable.setGeometry(QtCore.QRect(30, 70, 511, 391))
-        self.employersTable.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustIgnored)
+        # self.employersTable.setSizeAdjustPolicy(QtCore.Qt.QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored)
         self.employersTable.setShowGrid(True)
-        self.employersTable.setColumnCount(4)
+        self.employersTable.setColumnCount(6)
         self.employersTable.setObjectName("employersTable")
         self.employersTable.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
@@ -79,6 +79,10 @@ class Ui_Form(object):
         self.employersTable.setHorizontalHeaderItem(2, item)
         item = QtWidgets.QTableWidgetItem()
         self.employersTable.setHorizontalHeaderItem(3, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.employersTable.setHorizontalHeaderItem(4, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.employersTable.setHorizontalHeaderItem(5, item)
         self.delEmpBtn = QtWidgets.QPushButton(self.groupBox_2)
         self.delEmpBtn.setGeometry(QtCore.QRect(450, 40, 41, 26))
         self.delEmpBtn.setObjectName("delEmpBtn")
@@ -107,6 +111,16 @@ class Ui_Form(object):
         self.label_7 = QtWidgets.QLabel(self.groupBox_2)
         self.label_7.setGeometry(QtCore.QRect(30, 40, 221, 16))
         self.label_7.setObjectName("label_7")
+        self.usenameCB = QtWidgets.QComboBox(self.groupBox_2)
+        self.usenameCB.setGeometry(QtCore.QRect(390, 510, 111, 26))
+        self.usenameCB.setObjectName("usenameCB")
+        self.usenameCB.addItem("")
+        self.usenameCB.addItem("")
+        self.usenameCB.addItem("")
+        self.usenameCB.addItem("")
+        self.label_8 = QtWidgets.QLabel(self.groupBox_2)
+        self.label_8.setGeometry(QtCore.QRect(390, 480, 151, 18))
+        self.label_8.setObjectName("label_8")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -136,6 +150,10 @@ class Ui_Form(object):
         item.setText(_translate("Form", "Должность"))
         item = self.employersTable.horizontalHeaderItem(3)
         item.setText(_translate("Form", "Оклад"))
+        item = self.employersTable.horizontalHeaderItem(4)
+        item.setText(_translate("Form", "Отель"))
+        item = self.employersTable.horizontalHeaderItem(5)
+        item.setText(_translate("Form", "Имя пользователя"))
         self.delEmpBtn.setText(_translate("Form", "-"))
         self.label_3.setText(_translate("Form", "ФИО"))
         self.label_4.setText(_translate("Form", "Должность"))
@@ -145,3 +163,8 @@ class Ui_Form(object):
         self.comboBox.setItemText(2, _translate("Form", "Уборщик"))
         self.comboBox.setItemText(3, _translate("Form", "Администратор"))
         self.label_7.setText(_translate("Form", "Введите номер сотрудника для удаления"))
+        self.usenameCB.setItemText(0, _translate("Form", "Не выбрано"))
+        self.usenameCB.setItemText(1, _translate("Form", "Электрик"))
+        self.usenameCB.setItemText(2, _translate("Form", "Уборщик"))
+        self.usenameCB.setItemText(3, _translate("Form", "Администратор"))
+        self.label_8.setText(_translate("Form", "Имя пользователя"))

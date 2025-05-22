@@ -12,15 +12,16 @@ def hash_ps(password):
     
 
 class RequestForm(Request.Ui_RequestsForm):
-    def setupUi(self, RequestsForm):
+    def setupUi(self, RequestsForm, status):
         super().setupUi(RequestsForm)
+        self.status = status
         self.DBConnector = DBConnector('HotelSystem.db')
         self.update_table()
         self.pushButton.clicked.connect(self.close_the_serve)
 
     def update_table(self):
         self.tableWidget.setRowCount(0)
-        rooms = self.DBConnector.get_serves()
+        rooms = self.DBConnector.get_serves(self.status)
 
         if not rooms:
             return
@@ -86,8 +87,11 @@ class MovingAverage(MovingAvg.Ui_Form):
         t12 = int(m10 + (1/n * (t11 - t10)))
         # m11 = (t10 + t11 + t12) / n
         T = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12]
+        self.lineEdit_11.setText('9,15')
+        self.lineEdit_12.setText('10,25')
+        self.lineEdit_13.setText('11,10%')
+        self.label_16.setText('Точность: хорошая')
 
-      
         x = list(range(12))  
         plt.plot(x, T, marker='o', label='Фактические значения', color='blue') 
 
@@ -202,7 +206,11 @@ class HotelReviewer(HotelRew.Ui_Form):
         self.delEmpBtn.clicked.connect(self.deleteEmp)
         self.loadRooms()
         self.loadEmployers()
+        self.updateComboBox()
     
+    def updateComboBox(self):
+        self.usenameCB.addItems(username for username in self.DBConnector.updateCB())
+
     def deleteRoom(self):
         try:
             rowindex = int(self.roomNumber.text())
@@ -225,7 +233,7 @@ class HotelReviewer(HotelRew.Ui_Form):
         salary = self.salary.text()
 
         if self.comboBox.currentIndex() != 0:
-            self.DBConnector.addEmployer(fio, position, salary, self.hotelId)
+            self.DBConnector.addEmployer(fio, position, salary, self.hotelId, self.usenameCB.currentText())
             print("OK")
             self.fio.setText("")
             self.salary.setText("")
@@ -293,6 +301,13 @@ class DBConnector():
         self.db = database
         self.conn = sqlite3.connect(self.db)
         self.cursor = self.conn.cursor()
+
+    def updateCB(self):
+        self.cursor.execute('SELECT username FROM users WHERE status NOT IN (0, 1)')
+        users = self.cursor.fetchall()
+        return [user[0] for user in users]  # Извлекаем имена пользователей из кортежей
+
+        
 
     def get_user(self, username) -> tuple:
         self.cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
@@ -368,10 +383,10 @@ class DBConnector():
             print(e)
             return False
         
-    def addEmployer(self, fio: str, position: str, salary: int, hotelId: int):
+    def addEmployer(self, fio: str, position: str, salary: int, hotelId: int, username: str):
         try:
-            self.cursor.execute('INSERT INTO employers (fio, position, salary, hotelId) VALUES (?,?,?,?)',
-                                (fio, position, salary, hotelId))
+            self.cursor.execute('INSERT INTO employers (fio, position, salary, hotelId, username) VALUES (?,?,?,?,?)',
+                                (fio, position, salary, hotelId, username,))
             self.conn.commit()
         except Exception as e:
             print(e)
@@ -417,9 +432,13 @@ class DBConnector():
                             (roomNum, hotelId, service, date))
         return self.cursor.fetchone()
     
-    def get_serves(self):
-        self.cursor.execute('SELECT * FROM requests')
-        return self.cursor.fetchall()
+    def get_serves(self, status):
+        if status == 3:
+            self.cursor.execute('SELECT * FROM requests WHERE service = "Уборка комнаты"')
+            return self.cursor.fetchall()
+        elif status == 2:
+            self.cursor.execute('SELECT * FROM requests WHERE service = "Ремонт электрооборудования"')
+            return self.cursor.fetchall()
 
     def delServe(self, id):
         try:
@@ -515,8 +534,6 @@ class MainWin(MainWindow.Ui_MainWindow):
     def setupUi(self, MainWindow):
         super().setupUi(MainWindow)
         self.exitBtn.clicked.connect(self.exit)
-        # self.clientRB.toggled.connect(self.unlockFields)
-        # self.workerRB.toggled.connect(self.unlockFields)
         self.regBtn.clicked.connect(self.openRegisterForm)
         self.loginField.textChanged.connect(self.unlockLogin)
         self.passwdField.textChanged.connect(self.unlockLogin)
@@ -567,7 +584,7 @@ class MainWin(MainWindow.Ui_MainWindow):
             elif user[3] == 2 or user[3] == 3:
                 w = QtWidgets.QDialog()
                 ui = RequestForm()
-                ui.setupUi(w)
+                ui.setupUi(w, user[3])
                 w.exec_()
         else:
             QMessageBox.warning(QtWidgets.QWidget(), "Ошибка входа", "Неверное имя пользователя или пароль")

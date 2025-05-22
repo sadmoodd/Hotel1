@@ -58,7 +58,7 @@
      </rect>
     </property>
     <property name="sizeAdjustPolicy">
-     <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
     </property>
     <property name="showGrid">
      <bool>true</bool>
@@ -200,13 +200,13 @@
      </rect>
     </property>
     <property name="sizeAdjustPolicy">
-     <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
     </property>
     <property name="showGrid">
      <bool>true</bool>
     </property>
     <property name="columnCount">
-     <number>4</number>
+     <number>6</number>
     </property>
     <column>
      <property name="text">
@@ -226,6 +226,16 @@
     <column>
      <property name="text">
       <string>Оклад</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Отель</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Имя пользователя</string>
      </property>
     </column>
    </widget>
@@ -342,6 +352,49 @@
     </property>
     <property name="text">
      <string>Введите номер сотрудника для удаления</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="usenameCB">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>510</y>
+      <width>111</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Не выбрано</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Электрик</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Уборщик</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Администратор</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>480</y>
+      <width>151</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Имя пользователя</string>
     </property>
    </widget>
   </widget>
